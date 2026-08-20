@@ -34,6 +34,8 @@
 *.bin
 /src/ak_rtsp/ak_rtsp
 /src/ak_rtsp/flash_tool
+/src/ak_rtsp/isp_dump
+/src/ak_rtsp/patch_div0
 *.stripped
 
 # IDE & Build Artifacts
@@ -51,9 +53,12 @@ obj/
 /src/ak_rtsp/version_info.h
 
 # Local SmolRTSP checkout & firmware build workspace (see README prerequisites)
-/smolrtsp/
+# NOTE: smolrtsp must live at src/smolrtsp (sibling of src/ak_rtsp), not the repo root --
+# the Makefile's "../smolrtsp" include paths are relative to src/ak_rtsp/.
+/src/smolrtsp/
 /src/ak_rtsp/app_extracted/
 /src/ak_rtsp/app_patched/
+/src/ak_rtsp/new_app_gzip.squashfs
 
 # OS Specific
 .DS_Store

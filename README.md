@@ -201,26 +201,64 @@ The custom `ak_rtsp` server is **path-agnostic** (it serves the 1080p video + au
 `ak_rtsp` is **not** linked against a prebuilt SmolRTSP library — its `Makefile` compiles
 [OpenIPC's SmolRTSP](https://github.com/OpenIPC/smolrtsp) sources directly into the `ak_rtsp`
 binary, and expects to find them as a sibling directory: `../smolrtsp` relative to
-`src/ak_rtsp/` (i.e. checked out at the repo root, next to `src/`). This is *not* included in
-this repository. Before building, clone it and let CMake populate its own header-only
-dependencies (`slice99`, `datatype99`, `interface99`, `metalang99`) via FetchContent — you only
-need the *configure* step, not a full build:
+`src/ak_rtsp/` — i.e. checked out at **`src/smolrtsp`**, next to `src/ak_rtsp/` (not at the repo
+root). This is *not* included in this repository. Before building, clone it there and let CMake
+populate its own header-only dependencies (`slice99`, `datatype99`, `interface99`, `metalang99`)
+via FetchContent — you only need the *configure* step, not a full build:
 
 ```bash
+cd src
 git clone https://github.com/OpenIPC/smolrtsp.git
 cd smolrtsp
 cmake -S . -B build   # populates build/_deps/{slice99,datatype99,interface99,metalang99}-src
 ```
 
-The resulting `smolrtsp/` tree (with `include/` and the populated `build/_deps/`) is exactly
-what `src/ak_rtsp/Makefile`'s include paths expect. This has only been tested against the
-SmolRTSP revision available at the time this project was built — if the upstream repo has
-since diverged, some source-level adjustments in `src/ak_rtsp/rtsp.c`/`venc.c` may be needed.
+If you don't have (or don't want to install) CMake, you can populate the same four dependencies
+by hand instead — this was verified to produce an identical, working build:
+```bash
+cd src/smolrtsp
+mkdir -p build/_deps
+cd build/_deps
+for pair in "slice99:v0.7.8" "metalang99:v1.13.5" "datatype99:v1.6.5" "interface99:v1.0.2"; do
+    name="${pair%%:*}"; tag="${pair##*:}"
+    curl -sL "https://github.com/hirrolot/$name/archive/refs/tags/$tag.tar.gz" -o "$name.tar.gz"
+    mkdir -p "${name}-src"
+    tar xzf "$name.tar.gz" -C "${name}-src" --strip-components=1
+    rm "$name.tar.gz"
+done
+```
+(These are the exact versions SmolRTSP's own `CMakeLists.txt` `FetchContent_Declare` calls
+pinned at the time this project was built — check that file if the upstream repo has since
+bumped them.)
+
+The resulting `src/smolrtsp/` tree (with `include/` and the populated `build/_deps/`) is exactly
+what `src/ak_rtsp/Makefile`'s include paths expect. **Verified working end-to-end** (both the
+CMake-less dependency fetch above and the full `make` build below were run against this exact
+repo and produced statically-linked ARM/EABI5 binaries with no errors). This has only been
+tested against the SmolRTSP revision available at the time this project was built — if the
+upstream repo has since diverged, some source-level adjustments in `src/ak_rtsp/rtsp.c`/`venc.c`
+may be needed.
+
+### Prerequisite: GNU Make for Windows
+`make` for compiling `ak_rtsp` is run **natively on Windows, not inside WSL** (WSL is only used
+for the separate squashfs-packaging step in
+[Building Your Own Firmware](docs/building_your_own_firmware.md)). Windows doesn't ship `make`,
+so you need a native GNU Make on your `PATH`. This project was built against
+[GnuWin32 Make](https://gnuwin32.sourceforge.net/packages/make.htm) (GNU Make 3.81, installed to
+`C:\Program Files (x86)\GnuWin32\bin\make.exe` via its standalone installer) — that's an old,
+unmaintained package but it's a plain native `.exe` with no MSYS/Cygwin runtime needed, which is
+why it was picked. If you'd rather use a maintained source, a package manager works too and any
+recent GNU Make version should be fine:
+```powershell
+winget install GnuWin32.Make      # or: choco install make   /   scoop install make
+```
+Whichever you use, make sure `make.exe` ends up on `PATH` (open a new terminal after installing
+and confirm with `make --version`).
 
 ### Compiling `ak_rtsp`
 You can cross-compile using [Zig](https://ziglang.org/) without needing complex toolchains installed:
 
-```bash
+```powershell
 cd src/ak_rtsp
 make CC="zig cc -target arm-linux-musleabi -mcpu=arm926ej_s -static"
 ```

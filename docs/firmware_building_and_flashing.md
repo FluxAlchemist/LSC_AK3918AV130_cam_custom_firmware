@@ -59,13 +59,22 @@ The `ak_rtsp` binary is a standalone C program with custom ARMv5TE assembly atom
 
 > **Prerequisite:** `ak_rtsp`'s `Makefile` compiles [OpenIPC's SmolRTSP](https://github.com/OpenIPC/smolrtsp)
 > sources directly in, and expects them checked out as a sibling directory (`../smolrtsp`
-> relative to `src/ak_rtsp/`) — this is not included in this repo. Clone it and run CMake's
-> configure step (no full build needed) to populate its FetchContent dependencies:
+> relative to `src/ak_rtsp/`, i.e. at `src/smolrtsp`) — this is not included in this repo. Clone
+> it there and run CMake's configure step (no full build needed) to populate its FetchContent
+> dependencies:
 > ```bash
+> cd src
 > git clone https://github.com/OpenIPC/smolrtsp.git
 > cd smolrtsp && cmake -S . -B build
 > ```
-> See [Building from Source](../README.md#building-from-source) in the main README for details.
+> No CMake available? See [Building from Source](../README.md#building-from-source) in the main
+> README for a verified-working CMake-less fallback (fetches the same four pinned dependency
+> tarballs by hand).
+
+> **Prerequisite:** `make` here runs **natively on Windows, not inside WSL** (WSL is only used
+> for the squashfs-packaging step in section 4 below). Windows has no built-in `make` — see
+> [Prerequisite: GNU Make for Windows](../README.md#building-from-source) in the main README for
+> how to install one and get it on `PATH`.
 
 ### Method A: Zig Cross-Compiler (Recommended)
 ```bash
