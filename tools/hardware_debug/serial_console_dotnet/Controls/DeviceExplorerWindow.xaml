@@ -1,0 +1,32 @@
+<Window
+    x:Class="serial_console_dotnet.Controls.DeviceExplorerWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:serial_console_dotnet.Controls"
+    Title="Device File Explorer">
+
+    <Grid Background="#151E2E" RowDefinitions="Auto, *">
+        <!-- Custom Draggable TitleBar Grid -->
+        <Grid Grid.Row="0" x:Name="AppTitleBar" Background="#0C1324" Height="32" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" MinWidth="138" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Icon & Title -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0" Spacing="8">
+                <FontIcon Glyph="&#xE8B7;" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource CyanAccentBrush}" FontSize="12" />
+                <TextBlock Text="Device File Explorer" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+            </StackPanel>
+
+            <!-- Draggable Area Spacer -->
+            <Grid Grid.Column="1" Background="Transparent" />
+
+            <!-- System Caption controls spacer -->
+            <Grid Grid.Column="2" MinWidth="138" />
+        </Grid>
+
+        <local:DeviceExplorerView Grid.Row="1" x:Name="ExplorerView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+    </Grid>
+</Window>

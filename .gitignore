@@ -1,0 +1,60 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables & Binaries
+*.exe
+*.out
+*.app
+*.squashfs
+*.bin
+/src/ak_rtsp/ak_rtsp
+/src/ak_rtsp/flash_tool
+*.stripped
+
+# IDE & Build Artifacts
+.vs/
+.vscode/
+.idea/
+bin/
+obj/
+*.user
+*.tmp
+.pio/
+
+# ak_rtsp build versioning (regenerated every `make`)
+/src/ak_rtsp/build_number.txt
+/src/ak_rtsp/version_info.h
+
+# Local SmolRTSP checkout & firmware build workspace (see README prerequisites)
+/smolrtsp/
+/src/ak_rtsp/app_extracted/
+/src/ak_rtsp/app_patched/
+
+# OS Specific
+.DS_Store
+Thumbs.db

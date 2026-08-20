@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="serial_console_dotnet.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:serial_console_dotnet">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+            
+            <!-- Color Palette -->
+            <SolidColorBrush x:Key="CyanAccentBrush" Color="#00D2FF" />
+            <SolidColorBrush x:Key="CyanAccentHoverBrush" Color="#00B4D8" />
+            <SolidColorBrush x:Key="PurpleAccentBrush" Color="#A855F7" />
+            <SolidColorBrush x:Key="PurpleAccentHoverBrush" Color="#9333EA" />
+            <SolidColorBrush x:Key="EmeraldAccentBrush" Color="#10B981" />
+            <SolidColorBrush x:Key="EmeraldAccentHoverBrush" Color="#059669" />
+            <SolidColorBrush x:Key="RoseAccentBrush" Color="#F43F5E" />
+            <SolidColorBrush x:Key="RoseAccentHoverBrush" Color="#E11D48" />
+            <SolidColorBrush x:Key="SlateDarkBrush" Color="#0F172A" />
+            <SolidColorBrush x:Key="CardBackgroundBrush" Color="#1D2939" />
+            <SolidColorBrush x:Key="CardBorderBrush" Color="#344054" />
+            <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F2F4F7" />
+            <SolidColorBrush x:Key="TextMutedBrush" Color="#98A2B3" />
+
+            <!-- Button Styles -->
+            <Style x:Key="CyanButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource CyanAccentBrush}" />
+                <Setter Property="Foreground" Value="#0F172A" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="Padding" Value="16,8" />
+                <Setter Property="BorderThickness" Value="0" />
+            </Style>
+
+            <Style x:Key="PurpleButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource PurpleAccentBrush}" />
+                <Setter Property="Foreground" Value="#FFFFFF" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="Padding" Value="16,8" />
+                <Setter Property="BorderThickness" Value="0" />
+            </Style>
+
+            <Style x:Key="RoseButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource RoseAccentBrush}" />
+                <Setter Property="Foreground" Value="#FFFFFF" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="Padding" Value="16,8" />
+                <Setter Property="BorderThickness" Value="0" />
+            </Style>
+
+            <Style x:Key="EmeraldButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource EmeraldAccentBrush}" />
+                <Setter Property="Foreground" Value="#FFFFFF" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="Padding" Value="16,8" />
+                <Setter Property="BorderThickness" Value="0" />
+            </Style>
+
+            <Style x:Key="OutlineButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="Padding" Value="12,8" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

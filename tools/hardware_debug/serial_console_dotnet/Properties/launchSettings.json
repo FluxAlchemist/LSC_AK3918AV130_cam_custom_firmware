@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "serial_console_dotnet (Unpackaged)": {
+      "commandName": "Project"
+    },
+    "serial_console_dotnet (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    }
+  }
+}

@@ -1,0 +1,66 @@
+<UserControl
+    x:Class="serial_console_dotnet.Controls.FavoritesSidebar"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:serial_console_dotnet.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="10" Padding="4">
+            <!-- Section 1: System Folders -->
+            <Expander x:Name="SystemExpander" Header="System Folders" IsExpanded="True" Expanding="Expander_Expanding" Collapsed="Expander_Collapsed" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0">
+                <ListView x:Name="SystemListView" SelectionChanged="SystemListView_SelectionChanged" Background="Transparent" Padding="0">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="local:FavoriteFolderItem">
+                            <Grid ColumnDefinitions="Auto, *" Padding="4,4" Background="Transparent">
+                                <FontIcon Glyph="&#xE71B;" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource CyanAccentBrush}" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{x:Bind Name}" Foreground="#F2F4F7" FontSize="11" VerticalAlignment="Center" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Expander>
+
+            <!-- Section 2: Favorites -->
+            <Expander x:Name="FavoritesExpander" Header="Favorites" IsExpanded="True" Expanding="Expander_Expanding" Collapsed="Expander_Collapsed" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0">
+                <ListView x:Name="FavoritesListView" SelectionChanged="FavoritesListView_SelectionChanged" Background="Transparent" Padding="0">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="local:FavoriteFolderItem">
+                            <Grid ColumnDefinitions="Auto, *" Padding="4,4" Background="Transparent" RightTapped="FavoriteItem_RightTapped">
+                                <Grid.ContextFlyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="Remove from Favorites" Click="RemoveFavorite_Click" Tag="{x:Bind}" Icon="Favorite" />
+                                    </MenuFlyout>
+                                </Grid.ContextFlyout>
+                                <FontIcon Glyph="&#xE113;" FontFamily="Segoe Fluent Icons" Foreground="#F59E0B" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{x:Bind Name}" Foreground="#F2F4F7" FontSize="11" VerticalAlignment="Center" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                    <ListView.Header>
+                        <TextBlock x:Name="NoFavoritesText" Text="Right-click folders to add" FontSize="10" Foreground="{StaticResource TextMutedBrush}" Margin="6,4,0,4" />
+                    </ListView.Header>
+                </ListView>
+            </Expander>
+
+            <!-- Section 3: Recents -->
+            <Expander x:Name="RecentsExpander" Header="Recent Folders" IsExpanded="True" Expanding="Expander_Expanding" Collapsed="Expander_Collapsed" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0">
+                <ListView x:Name="RecentsListView" SelectionChanged="RecentsListView_SelectionChanged" Background="Transparent" Padding="0">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="local:FavoriteFolderItem">
+                            <Grid ColumnDefinitions="Auto, *" Padding="4,4" Background="Transparent">
+                                <FontIcon Glyph="&#xE817;" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource TextMutedBrush}" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="{x:Bind Name}" Foreground="#F2F4F7" FontSize="11" VerticalAlignment="Center" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                    <ListView.Header>
+                        <TextBlock x:Name="NoRecentsText" Text="No recent folders" FontSize="10" Foreground="{StaticResource TextMutedBrush}" Margin="6,4,0,4" />
+                    </ListView.Header>
+                </ListView>
+            </Expander>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

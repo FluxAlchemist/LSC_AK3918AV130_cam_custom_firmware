@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="serial_console_dotnet.Controls.TerminalTabView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:serial_console_dotnet.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    HorizontalAlignment="Stretch"
+    VerticalAlignment="Stretch">
+
+    <!-- RowDefinitions/ColumnDefinitions="*" declared explicitly at every Grid level in this
+         file (here and below) rather than left implicit — an implicit single-cell Grid can
+         collapse to its content's natural (Auto-like) size instead of stretching once nested
+         deep enough that an ancestor's available-height measurement becomes unconstrained,
+         which is what caused the terminal area to size itself to its line count instead of
+         filling the tab. See the matching fix in MainWindow.xaml's TabView wrapper. -->
+    <Grid x:Name="RootGrid" RowDefinitions="*" ColumnDefinitions="*" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+        <Grid RowDefinitions="*" ColumnDefinitions="310, *" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+            <!-- Sidebar (Left Column) -->
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Margin="0,0,16,0">
+                <StackPanel Spacing="16">
+
+                    <!-- Connection Settings Card -->
+                    <Border CornerRadius="8" Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" Padding="14">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Connection Settings" FontSize="14" FontWeight="Bold" Foreground="{StaticResource CyanAccentBrush}" />
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Connection Type" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <ComboBox x:Name="ConnectionTypeComboBox" Grid.Column="0" HorizontalAlignment="Stretch" SelectedValue="{x:Bind ViewModel.SelectedConnectionType, Mode=TwoWay}" SelectedValuePath="Tag">
+                                        <ComboBoxItem Content="Serial Port (UART)" Tag="serial" />
+                                        <ComboBoxItem Content="Telnet (Network)" Tag="telnet" />
+                                    </ComboBox>
+                                    <Button x:Name="ConnectButton" Grid.Column="1" Click="ConnectButton_Click" Style="{StaticResource CyanButtonStyle}" Width="40" Height="32" Padding="0" Margin="6,0,0,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsEnabled="{x:Bind ViewModel.CanConnect, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind ViewModel.ConnectButtonText, Mode=OneWay}">
+                                        <FontIcon x:Name="ConnectButtonIcon" Glyph="{x:Bind ViewModel.ConnectButtonIcon, Mode=OneWay}" FontFamily="Segoe Fluent Icons" FontSize="14" />
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- Serial Options Panel -->
+                            <StackPanel x:Name="SerialOptionsPanel" Spacing="12" Visibility="{x:Bind ViewModel.IsSerialSelected, Mode=OneWay}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Baud Rate" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                    <ComboBox x:Name="BaudRateComboBox" HorizontalAlignment="Stretch" SelectedValue="{x:Bind ViewModel.SelectedBaudRate, Mode=TwoWay}" SelectedValuePath="Tag">
+                                        <ComboBoxItem Content="9600 bps">
+                                            <ComboBoxItem.Tag>
+                                                <x:Int32>9600</x:Int32>
+                                            </ComboBoxItem.Tag>
+                                        </ComboBoxItem>
+                                        <ComboBoxItem Content="19200 bps">
+                                            <ComboBoxItem.Tag>
+                                                <x:Int32>19200</x:Int32>
+                                            </ComboBoxItem.Tag>
+                                        </ComboBoxItem>
+                                        <ComboBoxItem Content="38400 bps">
+                                            <ComboBoxItem.Tag>
+                                                <x:Int32>38400</x:Int32>
+                                            </ComboBoxItem.Tag>
+                                        </ComboBoxItem>
+                                        <ComboBoxItem Content="57600 bps">
+                                            <ComboBoxItem.Tag>
+                                                <x:Int32>57600</x:Int32>
+                                            </ComboBoxItem.Tag>
+                                        </ComboBoxItem>
+                                        <ComboBoxItem Content="115200 bps (default)">
+                                            <ComboBoxItem.Tag>
+                                                <x:Int32>115200</x:Int32>
+                                            </ComboBoxItem.Tag>
+                                        </ComboBoxItem>
+                                        <ComboBoxItem Content="230400 bps">
+                                            <ComboBoxItem.Tag>
+                                                <x:Int32>230400</x:Int32>
+                                            </ComboBoxItem.Tag>
+                                        </ComboBoxItem>
+                                        <ComboBoxItem Content="921600 bps">
+                                            <ComboBoxItem.Tag>
+                                                <x:Int32>921600</x:Int32>
+                                            </ComboBoxItem.Tag>
+                                        </ComboBoxItem>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Select COM Port" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <ComboBox x:Name="PortComboBox" HorizontalAlignment="Stretch" PlaceholderText="Select Port..." ItemsSource="{x:Bind ViewModel.AvailablePorts, Mode=OneWay}" SelectedValue="{x:Bind ViewModel.SelectedPort, Mode=TwoWay}" />
+                                        <Button Grid.Column="1" Click="RefreshPorts_Click" Style="{StaticResource OutlineButtonStyle}" Padding="8" Margin="6,0,0,0" ToolTipService.ToolTip="Scan Ports">
+                                            <FontIcon Glyph="&#xE72C;" FontFamily="Segoe Fluent Icons" FontSize="12" />
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock Text="Note: Select COM port corresponding to your device." FontSize="9.5" Foreground="{StaticResource TextMutedBrush}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Telnet Options Panel -->
+                            <StackPanel x:Name="TelnetOptionsPanel" Spacing="12" Visibility="{x:Bind ViewModel.IsTelnetSelected, Mode=OneWay}">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="IP Address / Host + Port" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                    <Grid ColumnDefinitions="*, 8, 60">
+                                        <TextBox x:Name="TelnetHostTextBox" Grid.Column="0" Text="{x:Bind ViewModel.TelnetHost, Mode=TwoWay}" PlaceholderText="e.g. 192.168.1.1" HorizontalAlignment="Stretch" />
+                                        <TextBox x:Name="TelnetPortTextBox" Grid.Column="2" Text="{x:Bind ViewModel.TelnetPort, Mode=TwoWay}" PlaceholderText="23" HorizontalAlignment="Stretch" />
+                                    </Grid>
+                                </StackPanel>
+
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Login / Password (auto-sent at connect)" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                    <Grid ColumnDefinitions="*, 8, *">
+                                        <TextBox x:Name="TelnetUsernameTextBox" Grid.Column="0" Text="{x:Bind ViewModel.TelnetUsername, Mode=TwoWay}" PlaceholderText="root" HorizontalAlignment="Stretch" />
+                                        <PasswordBox x:Name="TelnetPasswordBox" Grid.Column="2" PlaceholderText="Password" PasswordChanged="TelnetPasswordBox_PasswordChanged" HorizontalAlignment="Stretch" />
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Console Configuration Card -->
+                    <Border CornerRadius="8" Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" Padding="14">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Console Configuration" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Line Ending" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                <ComboBox x:Name="LineEndingComboBox" HorizontalAlignment="Stretch" SelectedValue="{x:Bind ViewModel.SelectedLineEnding, Mode=TwoWay}" SelectedValuePath="Tag">
+                                    <ComboBoxItem Content="LF (\n) - Default (Linux)" Tag="lf" />
+                                    <ComboBoxItem Content="CR + LF (\r\n)" Tag="crlf" />
+                                    <ComboBoxItem Content="CR (\r)" Tag="cr" />
+                                    <ComboBoxItem Content="None" Tag="none" />
+                                </ComboBox>
+                            </StackPanel>
+
+                            <ToggleSwitch x:Name="TimestampsToggle" Header="Show Timestamps" IsOn="{x:Bind ViewModel.ShowTimestamps, Mode=TwoWay}" FontSize="12" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Hardware Utilities Card -->
+                    <Border CornerRadius="8" Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" Padding="14">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Hardware Utilities" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
+
+                            <Button x:Name="BootExploitButton" Click="BootExploitButton_Click" Style="{StaticResource PurpleButtonStyle}" HorizontalAlignment="Stretch" IsEnabled="{x:Bind ViewModel.IsConnectedAndIdle, Mode=OneWay}" ToolTipService.ToolTip="Interrupt U-Boot and force load root shell with partition mounts">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE768;" FontFamily="Segoe Fluent Icons" FontSize="12" />
+                                    <TextBlock Text="Boot Root Shell" />
+                                </StackPanel>
+                            </Button>
+
+                            <Grid ColumnDefinitions="*, *">
+                                <Button x:Name="MountSdCardButton" Click="MountSdCardButton_Click" Style="{StaticResource EmeraldButtonStyle}" HorizontalAlignment="Stretch" Margin="0,0,4,0" IsEnabled="{x:Bind ViewModel.IsConnectedAndIdle, Mode=OneWay}" ToolTipService.ToolTip="Load MMC/SD kernel modules and mount the card to /mnt">
+                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                        <FontIcon Glyph="&#xE958;" FontFamily="Segoe Fluent Icons" FontSize="12" />
+                                        <TextBlock Text="Mount SD" FontSize="11" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Grid.Column="1" x:Name="UnmountSdButton" Click="UnmountSdButton_Click" Style="{StaticResource RoseButtonStyle}" HorizontalAlignment="Stretch" Margin="4,0,0,0" IsEnabled="{x:Bind ViewModel.IsConnectedAndIdle, Mode=OneWay}" ToolTipService.ToolTip="Safely unmount SD card from /mnt">
+                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                        <FontIcon Glyph="&#xF13F;" FontFamily="Segoe Fluent Icons" FontSize="12" />
+                                        <TextBlock Text="Unmount SD" FontSize="11" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <Button x:Name="OpenExplorerBtn" Click="OpenExplorer_Click" Style="{StaticResource PurpleButtonStyle}" HorizontalAlignment="Stretch" Margin="0,0,0,8" IsEnabled="{x:Bind ViewModel.IsConnectedAndIdle, Mode=OneWay}">
+                                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                    <FontIcon Glyph="&#xE8B7;" FontFamily="Segoe Fluent Icons" FontSize="12" />
+                                    <TextBlock Text="Device Explorer" />
+                                </StackPanel>
+                            </Button>
+
+                            <Grid x:Name="UartTransferGrid" ColumnDefinitions="*, *">
+                                <Button x:Name="OpenUploadDialogBtn" Click="OpenUploadDialog_Click" Style="{StaticResource OutlineButtonStyle}" HorizontalAlignment="Stretch" Margin="0,0,4,0" IsEnabled="{x:Bind ViewModel.IsConnectedAndIdle, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                        <FontIcon Glyph="&#xE898;" FontFamily="Segoe Fluent Icons" FontSize="12" />
+                                        <TextBlock Text="Upload (UART)" FontSize="10.5" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Grid.Column="1" x:Name="OpenDownloadDialogBtn" Click="OpenDownloadDialog_Click" Style="{StaticResource OutlineButtonStyle}" HorizontalAlignment="Stretch" Margin="4,0,0,0" IsEnabled="{x:Bind ViewModel.IsConnectedAndIdle, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                        <FontIcon Glyph="&#xE896;" FontFamily="Segoe Fluent Icons" FontSize="12" />
+                                        <TextBlock Text="Download (UART)" FontSize="10.5" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Terminal Controls Card -->
+                    <Border CornerRadius="8" Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" Padding="14">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Terminal Controls" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
+
+                            <Grid ColumnDefinitions="*, *">
+                                <Button x:Name="CtrlCBtn" Click="SendCtrlC_Click" Style="{StaticResource OutlineButtonStyle}" HorizontalAlignment="Stretch" Margin="0,0,4,0" IsEnabled="{x:Bind ViewModel.IsConnectedAndIdle, Mode=OneWay}">
+                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                        <TextBlock Text="^C" FontFamily="Consolas" FontWeight="Bold" FontSize="11" />
+                                        <TextBlock Text="Ctrl+C" FontSize="11" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Grid.Column="1" Click="ClearConsole_Click" Style="{StaticResource OutlineButtonStyle}" HorizontalAlignment="Stretch" Margin="4,0,0,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                                        <FontIcon Glyph="&#xE74D;" FontFamily="Segoe Fluent Icons" FontSize="12" />
+                                        <TextBlock Text="Clear Screen" FontSize="11" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <Button x:Name="ExportButton" Click="ExportLog_Click" Style="{StaticResource EmeraldButtonStyle}" HorizontalAlignment="Stretch" IsEnabled="{x:Bind ViewModel.IsConnectedAndIdle, Mode=OneWay}">
+                                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                    <FontIcon Glyph="&#xE896;" FontFamily="Segoe Fluent Icons" FontSize="12" />
+                                    <TextBlock Text="Export Log to .txt" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Terminal Area (Right Column) -->
+            <Grid Grid.Column="1" RowDefinitions="*, Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+                <!-- Encapsulated Terminal View Control -->
+                <local:TerminalView x:Name="ConsoleTerminal" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+                <!-- Command Input Bar -->
+                <Border Grid.Row="1" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1,0,1,1" CornerRadius="0,0,8,8" Background="#0C1324" Padding="10">
+                    <Grid ColumnDefinitions="Auto, *, Auto, Auto">
+                        <TextBlock x:Name="PromptSymbolText" Text=">" FontSize="14" FontWeight="Bold" Foreground="{StaticResource CyanAccentBrush}" VerticalAlignment="Center" Margin="8,0,12,0" />
+
+                        <TextBox Grid.Column="1" x:Name="CommandTextBox" PlaceholderText="Connect device..." IsEnabled="{x:Bind ViewModel.IsConnectedAndIdle, Mode=OneWay}" KeyDown="CommandTextBox_KeyDown" PreviewKeyDown="CommandTextBox_PreviewKeyDown" TextChanging="CommandTextBox_TextChanging" Background="#1D2939" BorderBrush="{StaticResource CardBorderBrush}" Foreground="#F2F4F7" CornerRadius="6" VerticalAlignment="Center" FontFamily="Consolas" Height="40" Padding="10,8" />
+
+                        <CheckBox Grid.Column="2" x:Name="DirectModeCheckBox" Content="Direct Mode" IsChecked="{x:Bind ViewModel.DirectMode, Mode=TwoWay}" VerticalAlignment="Center" Margin="12,0" FontSize="12" />
+
+                        <Button Grid.Column="3" x:Name="SendCommandBtn" Click="SendCommand_Click" Style="{StaticResource CyanButtonStyle}" Height="40" Padding="16,0" IsEnabled="{x:Bind ViewModel.IsConnectedAndIdle, Mode=OneWay}" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="Send" />
+                                <FontIcon Glyph="&#xE72A;" FontFamily="Segoe Fluent Icons" FontSize="11" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- Overlay Dialog Components (scoped to this tab's connection) -->
+        <local:UploadDialog x:Name="UploadOverlayDialog" Visibility="Collapsed" />
+        <local:DownloadDialog x:Name="DownloadOverlayDialog" Visibility="Collapsed" />
+    </Grid>
+</UserControl>

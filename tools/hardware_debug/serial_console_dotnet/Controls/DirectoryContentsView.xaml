@@ -1,0 +1,107 @@
+<UserControl
+    x:Class="serial_console_dotnet.Controls.DirectoryContentsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:serial_console_dotnet.Controls"
+    xmlns:d="http://schemas.expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:primitives="using:Microsoft.UI.Xaml.Controls.Primitives"
+    mc:Ignorable="d">
+
+    <Grid x:Name="ContentsGrid" Background="Transparent" RightTapped="ContentsGrid_RightTapped" DragOver="ContentsGrid_DragOver" Drop="ContentsGrid_Drop" AllowDrop="True">
+        <!-- Background menu for empty space -->
+        <primitives:FlyoutBase.AttachedFlyout>
+            <MenuFlyout x:Name="BackgroundContextMenu">
+                <MenuFlyoutItem Text="Paste" x:Name="PasteContextBtn" Click="PasteContextBtn_Click" IsEnabled="False" Icon="Paste" />
+                <MenuFlyoutItem Text="New Directory" Click="NewFolderContextBtn_Click" Icon="NewFolder" />
+            </MenuFlyout>
+        </primitives:FlyoutBase.AttachedFlyout>
+        
+        <Grid RowDefinitions="Auto, *, Auto">
+            <!-- Header Grid for List Mode columns -->
+            <Grid Grid.Row="0" x:Name="ListHeaderGrid" ColumnDefinitions="*, 120, 150" Padding="14,6,14,6" Background="#0C1324" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Margin="4,0,4,0">
+                <Button Click="SortByName_Click" Style="{StaticResource OutlineButtonStyle}" Padding="4,2" HorizontalAlignment="Left" BorderThickness="0" Background="Transparent">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="Name" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}" />
+                        <FontIcon x:Name="NameSortIcon" Glyph="&#xE1FD;" FontFamily="Segoe Fluent Icons" FontSize="8" Visibility="Visible" />
+                    </StackPanel>
+                </Button>
+                <Button Grid.Column="1" Click="SortBySize_Click" Style="{StaticResource OutlineButtonStyle}" Padding="4,2" HorizontalAlignment="Left" BorderThickness="0" Background="Transparent">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="Size" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}" />
+                        <FontIcon x:Name="SizeSortIcon" Glyph="&#xE1FD;" FontFamily="Segoe Fluent Icons" FontSize="8" Visibility="Collapsed" />
+                    </StackPanel>
+                </Button>
+                <Button Grid.Column="2" Click="SortByType_Click" Style="{StaticResource OutlineButtonStyle}" Padding="4,2" HorizontalAlignment="Left" BorderThickness="0" Background="Transparent">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="Type" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource TextMutedBrush}" />
+                        <FontIcon x:Name="TypeSortIcon" Glyph="&#xE1FD;" FontFamily="Segoe Fluent Icons" FontSize="8" Visibility="Collapsed" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+            <!-- List View (List Mode) -->
+            <ListView x:Name="ItemsListView" Grid.Row="1" Visibility="Visible" SelectionMode="Extended" DoubleTapped="ItemsListView_DoubleTapped" SelectionChanged="ItemsListView_SelectionChanged" KeyDown="Items_KeyDown" Background="Transparent" Padding="4">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="local:ExplorerItem">
+                        <Grid ColumnDefinitions="*, 120, 150" Padding="4" Background="Transparent" RightTapped="Item_RightTapped">
+                            <Grid.ContextFlyout>
+                                <MenuFlyout Opening="ItemContextMenu_Opening">
+                                    <MenuFlyoutItem Text="Execute" Click="ExecuteItem_Click" Tag="{x:Bind}" Icon="Play" />
+                                    <MenuFlyoutItem Text="Edit File" Click="EditFileItem_Click" Tag="{x:Bind}" Icon="Edit" />
+                                    <MenuFlyoutItem Text="Add to Favorites" Click="AddToFavoritesItem_Click" Tag="{x:Bind}" Icon="Favorite" />
+                                    <MenuFlyoutItem Text="Copy Path" Click="CopyPathItem_Click" Tag="{x:Bind}" Icon="Link" />
+                                    <MenuFlyoutItem Text="Rename" Click="RenameItem_Click" Tag="{x:Bind}" Icon="Rename" />
+                                    <MenuFlyoutItem Text="Download" Click="DownloadItem_Click" Tag="{x:Bind}" Icon="Download" />
+                                    <MenuFlyoutItem Text="Copy" Click="CopyItem_Click" Tag="{x:Bind}" Icon="Copy" />
+                                    <MenuFlyoutItem Text="Delete" Click="DeleteItem_Click" Tag="{x:Bind}" Icon="Delete" />
+                                    <MenuFlyoutItem Text="Properties / Stats" Click="PropertiesItem_Click" Tag="{x:Bind}" Icon="PostUpdate" />
+                                </MenuFlyout>
+                            </Grid.ContextFlyout>
+                            
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <FontIcon Glyph="{x:Bind Icon}" FontFamily="Segoe Fluent Icons" Foreground="{x:Bind IconColor}" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center" />
+                                <TextBlock Text="{x:Bind DisplayName}" Visibility="{x:Bind NormalVisibility, Mode=OneWay}" Foreground="#F2F4F7" FontSize="13" VerticalAlignment="Center" />
+                                <TextBox x:Name="RenameTextBox" Text="{x:Bind Name, Mode=TwoWay}" Visibility="{x:Bind EditingVisibility, Mode=OneWay}" LostFocus="RenameTextBox_LostFocus" KeyDown="RenameTextBox_KeyDown" Height="28" Padding="6,2" VerticalAlignment="Center" FontSize="12" MinWidth="150" Background="#1D2939" Foreground="#F2F4F7" BorderBrush="{StaticResource CardBorderBrush}" />
+                            </StackPanel>
+
+                            <TextBlock Grid.Column="1" Text="{x:Bind SizeLabel}" Foreground="#F2F4F7" FontSize="12" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="2" Text="{x:Bind ItemTypeLabel}" Foreground="{StaticResource TextMutedBrush}" FontSize="11" Margin="4,0,4,0" VerticalAlignment="Center" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <!-- Grid View (Icon Mode) -->
+            <GridView x:Name="ItemsGridView" Grid.Row="1" Visibility="Collapsed" SelectionMode="Extended" DoubleTapped="ItemsGridView_DoubleTapped" SelectionChanged="ItemsGridView_SelectionChanged" KeyDown="Items_KeyDown" Background="Transparent" Padding="8">
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="local:ExplorerItem">
+                        <Grid Width="100" Height="90" Margin="4" Padding="6" Background="Transparent" CornerRadius="4" RightTapped="Item_RightTapped" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Grid.ContextFlyout>
+                                <MenuFlyout Opening="ItemContextMenu_Opening">
+                                    <MenuFlyoutItem Text="Execute" Click="ExecuteItem_Click" Tag="{x:Bind}" Icon="Play" />
+                                    <MenuFlyoutItem Text="Edit File" Click="EditFileItem_Click" Tag="{x:Bind}" Icon="Edit" />
+                                    <MenuFlyoutItem Text="Add to Favorites" Click="AddToFavoritesItem_Click" Tag="{x:Bind}" Icon="Favorite" />
+                                    <MenuFlyoutItem Text="Copy Path" Click="CopyPathItem_Click" Tag="{x:Bind}" Icon="Link" />
+                                    <MenuFlyoutItem Text="Rename" Click="RenameItem_Click" Tag="{x:Bind}" Icon="Rename" />
+                                    <MenuFlyoutItem Text="Download" Click="DownloadItem_Click" Tag="{x:Bind}" Icon="Download" />
+                                    <MenuFlyoutItem Text="Copy" Click="CopyItem_Click" Tag="{x:Bind}" Icon="Copy" />
+                                    <MenuFlyoutItem Text="Delete" Click="DeleteItem_Click" Tag="{x:Bind}" Icon="Delete" />
+                                    <MenuFlyoutItem Text="Properties / Stats" Click="PropertiesItem_Click" Tag="{x:Bind}" Icon="PostUpdate" />
+                                </MenuFlyout>
+                            </Grid.ContextFlyout>
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6">
+                                <FontIcon Glyph="{x:Bind Icon}" FontFamily="Segoe Fluent Icons" Foreground="{x:Bind IconColor}" FontSize="36" HorizontalAlignment="Center" />
+                                <TextBlock Text="{x:Bind Name}" Visibility="{x:Bind NormalVisibility, Mode=OneWay}" Foreground="#F2F4F7" FontSize="11" TextAlignment="Center" TextTrimming="CharacterEllipsis" Width="88" HorizontalAlignment="Center" />
+                                <TextBox x:Name="RenameTextBox" Text="{x:Bind Name, Mode=TwoWay}" Visibility="{x:Bind EditingVisibility, Mode=OneWay}" LostFocus="RenameTextBox_LostFocus" KeyDown="RenameTextBox_KeyDown" Height="24" Padding="4,2" HorizontalAlignment="Center" TextAlignment="Center" FontSize="10" Width="88" Background="#1D2939" Foreground="#F2F4F7" BorderBrush="{StaticResource CardBorderBrush}" />
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </GridView>
+
+            <!-- Loading ring overlay -->
+            <ProgressRing x:Name="LoadingRing" Grid.Row="1" IsActive="False" Width="30" Height="30" Foreground="{StaticResource CyanAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Grid>
+    </Grid>
+</UserControl>

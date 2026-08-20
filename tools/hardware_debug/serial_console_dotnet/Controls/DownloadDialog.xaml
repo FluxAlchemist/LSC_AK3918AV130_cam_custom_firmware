@@ -1,0 +1,69 @@
+<UserControl
+    x:Class="serial_console_dotnet.Controls.DownloadDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:serial_console_dotnet.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <!-- Resources moved to App.xaml -->
+
+    <Grid x:Name="DownloadOverlay" Background="#A0000000" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Border Width="500" VerticalAlignment="Center" Background="#151E2E" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" CornerRadius="8" HorizontalAlignment="Center" Padding="20">
+            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto">
+                
+                <!-- Header -->
+                <Grid Grid.Row="0" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <FontIcon Glyph="&#xE896;" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource CyanAccentBrush}" FontSize="18" />
+                        <TextBlock Text="Download from Device (UART)" FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Click="CloseDownloadDialog_Click" Style="{StaticResource OutlineButtonStyle}" Padding="6" BorderThickness="0">
+                        <FontIcon Glyph="&#xE10A;" FontFamily="Segoe Fluent Icons" FontSize="14" />
+                    </Button>
+                </Grid>
+
+                <!-- Remote Path Input -->
+                <StackPanel Grid.Row="1" Spacing="4" Margin="0,0,0,12">
+                    <TextBlock Text="Target Path on Device (File or Directory)" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
+                    <TextBox x:Name="DownloadTargetPathTextBox" Text="/etc/config/wpa_supplicant.conf" FontFamily="Consolas" Height="36" VerticalAlignment="Center" />
+                </StackPanel>
+
+                <!-- FTP Switch Panel -->
+                <StackPanel x:Name="FtpSwitchPanel" Grid.Row="2" Visibility="Collapsed" Margin="0,0,0,12" Spacing="8">
+                    <ToggleSwitch x:Name="UseFtpToggle" Header="Use FTP Transfer" IsOn="False" Toggled="UseFtpToggle_Toggled" FontSize="12" />
+                    
+                    <StackPanel x:Name="FtpCredentialsPanel" Visibility="Collapsed" Spacing="8">
+                        <Grid ColumnDefinitions="*, *">
+                            <StackPanel Spacing="4" Margin="0,0,4,0">
+                                <TextBlock Text="FTP Username" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                <TextBox x:Name="FtpUsernameTextBox" Text="root" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="4" Margin="4,0,0,0">
+                                <TextBlock Text="FTP Password" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                <PasswordBox x:Name="FtpPasswordBox" Password="" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Progress Indicator -->
+                <StackPanel Grid.Row="3" x:Name="DownloadProgressPanel" Spacing="6" Visibility="Collapsed" Margin="0,0,0,12">
+                    <TextBlock x:Name="DownloadStatusText" Text="Requesting file stream..." FontSize="11" Foreground="{StaticResource CyanAccentBrush}" />
+                    <ProgressBar x:Name="DownloadProgressBar" Height="6" Background="#1D2939" Foreground="{StaticResource CyanAccentBrush}" CornerRadius="3" Minimum="0" Maximum="100" Value="0" IsIndeterminate="True" />
+                </StackPanel>
+
+                <!-- Action Buttons -->
+                <Grid Grid.Row="4" ColumnDefinitions="*, *" Margin="0,12,0,0">
+                    <Button Click="CloseDownloadDialog_Click" Style="{StaticResource OutlineButtonStyle}" Content="Cancel" HorizontalAlignment="Stretch" Margin="0,0,6,0" />
+                    <Button Grid.Column="1" x:Name="StartDownloadBtn" Click="StartDownload_Click" Style="{StaticResource CyanButtonStyle}" Content="Start Download" HorizontalAlignment="Stretch" Margin="6,0,0,0" />
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

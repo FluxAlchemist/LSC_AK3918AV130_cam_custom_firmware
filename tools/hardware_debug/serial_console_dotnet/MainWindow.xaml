@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="serial_console_dotnet.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:serial_console_dotnet"
+    xmlns:controls="using:serial_console_dotnet.Controls"
+    xmlns:lvc="using:LibVLCSharp.Platforms.Windows"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="IP Camera Exploit &amp; Terminal Suite">
+
+    <Window.SystemBackdrop>
+        <MicaBackdrop />
+    </Window.SystemBackdrop>
+
+    <Grid x:Name="RootGrid" RequestedTheme="Dark" Background="#0A0F1D">
+        <!-- Resources moved to App.xaml -->
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Custom TitleBar -->
+        <Grid Grid.Row="0" x:Name="AppTitleBar" Background="#0C1324" Height="32" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Icon & Title -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0" Spacing="8">
+                <FontIcon Glyph="&#xE756;" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource CyanAccentBrush}" FontSize="12" />
+                <TextBlock Text="IP Camera Exploit &amp; Terminal Suite" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" />
+                <Border Background="#1F2937" CornerRadius="3" Padding="4,1" Margin="4,0,0,0">
+                    <TextBlock Text="v1.0" FontSize="9" Foreground="{StaticResource TextMutedBrush}" />
+                </Border>
+            </StackPanel>
+
+            <!-- Drag Area spacer -->
+            <Grid Grid.Column="1" Background="Transparent" />
+
+            <!-- Custom Controls spacer (system caption controls will render here) -->
+            <Grid Grid.Column="2" MinWidth="138" />
+        </Grid>
+
+        <!-- Workspace Layout -->
+        <!-- RowDefinitions/ColumnDefinitions="*" declared explicitly rather than left implicit —
+             see the matching comment in TerminalTabView.xaml for why an implicit single-cell
+             Grid here can stop the whole TabView (and everything inside it) from stretching to
+             fill the window. -->
+        <Grid Grid.Row="1" RowDefinitions="*" ColumnDefinitions="*" Padding="16">
+
+            <TabView x:Name="RootTabView" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TabWidthMode="SizeToContent" IsAddTabButtonVisible="True" AddTabButtonClick="RootTabView_AddTabButtonClick" TabCloseRequested="RootTabView_TabCloseRequested">
+
+                <TabViewItem Header="Camera Tuning" IsClosable="False">
+                    <TabViewItem.IconSource>
+                        <FontIconSource Glyph="&#xE714;" />
+                    </TabViewItem.IconSource>
+                    <Grid ColumnDefinitions="380, *" Padding="16,0,0,0">
+
+                        <!-- Tuning controls -->
+                        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Margin="0,0,16,0">
+                            <StackPanel Spacing="16">
+
+                                <!-- Control connection card -->
+                                <Border CornerRadius="8" Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" Padding="14">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="Control Connection" FontSize="14" FontWeight="Bold" Foreground="{StaticResource CyanAccentBrush}" />
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="Camera IP" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <TextBox Text="{x:Bind TuningViewModel.Host, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="Control Port (default 8091)" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <TextBox Text="{x:Bind TuningViewModel.Port, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+                                        </StackPanel>
+
+                                        <Border CornerRadius="12" Padding="10,4" Background="#1A2238" BorderBrush="#2A3759" BorderThickness="1" HorizontalAlignment="Left">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Ellipse Width="8" Height="8" Fill="{x:Bind TuningViewModel.StatusColor, Mode=OneWay}" Margin="0,0,8,0" />
+                                                <TextBlock Text="{x:Bind TuningViewModel.StatusText, Mode=OneWay}" FontSize="12" FontWeight="SemiBold" Foreground="#F2F4F7" />
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Button x:Name="TuningConnectButton" Content="Connect" Click="TuningConnectButton_Click" Style="{StaticResource CyanButtonStyle}" HorizontalAlignment="Stretch" Visibility="{x:Bind Not(TuningViewModel.IsConnected), Mode=OneWay}" />
+                                        <Button x:Name="TuningDisconnectButton" Content="Disconnect" Click="TuningDisconnectButton_Click" Style="{StaticResource OutlineButtonStyle}" HorizontalAlignment="Stretch" Visibility="{x:Bind TuningViewModel.IsConnected, Mode=OneWay}" />
+                                        <Button x:Name="TuningRefreshButton" Content="Refresh from camera" Click="TuningRefreshButton_Click" Style="{StaticResource OutlineButtonStyle}" HorizontalAlignment="Stretch" IsEnabled="{x:Bind TuningViewModel.IsConnected, Mode=OneWay}" />
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Auto Exposure card -->
+                                <Border CornerRadius="8" Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" Padding="14">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="Auto Exposure" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
+
+                                        <ToggleSwitch x:Name="AeEnabledToggle" Header="AE Enabled (off = frozen exposure)" IsOn="{x:Bind TuningViewModel.AeEnabled, Mode=TwoWay}" Toggled="AeEnabledToggle_Toggled" FontSize="12" />
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{x:Bind FormatParam('Stable range', TuningViewModel.AeStableRange), Mode=OneWay}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <Slider x:Name="AeStableRangeSlider" Minimum="0" Maximum="99" StepFrequency="1" Value="{x:Bind TuningViewModel.AeStableRange, Mode=TwoWay}" ValueChanged="AeStableRangeSlider_ValueChanged" />
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{x:Bind FormatParam('Hold range', TuningViewModel.AeHoldRange), Mode=OneWay}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <Slider x:Name="AeHoldRangeSlider" Minimum="0" Maximum="99" StepFrequency="1" Value="{x:Bind TuningViewModel.AeHoldRange, Mode=TwoWay}" ValueChanged="AeHoldRangeSlider_ValueChanged" />
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{x:Bind FormatParam('Speed', TuningViewModel.AeSpeed), Mode=OneWay}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <Slider x:Name="AeSpeedSlider" Minimum="0" Maximum="99" StepFrequency="1" Value="{x:Bind TuningViewModel.AeSpeed, Mode=TwoWay}" ValueChanged="AeSpeedSlider_ValueChanged" />
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{x:Bind FormatParam('Exposure max', TuningViewModel.AeExpMax), Mode=OneWay}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <Slider x:Name="AeExpMaxSlider" Minimum="2" Maximum="32767" StepFrequency="1" Value="{x:Bind TuningViewModel.AeExpMax, Mode=TwoWay}" ValueChanged="AeExpMaxSlider_ValueChanged" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Picture card — see ak_rtsp/isp.c for the Ghidra-verified
+                                     mechanism behind each slider (each is a genuinely different
+                                     code path in anyka_ipc, not just 4 fields of one struct). -->
+                                <Border CornerRadius="8" Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" Padding="14">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="Picture" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{x:Bind FormatParam('Brightness', TuningViewModel.IspBrightness), Mode=OneWay}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <Slider x:Name="IspBrightnessSlider" Minimum="-50" Maximum="50" StepFrequency="1" Value="{x:Bind TuningViewModel.IspBrightness, Mode=TwoWay}" ValueChanged="IspBrightnessSlider_ValueChanged" />
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{x:Bind FormatParam('Contrast', TuningViewModel.IspContrast), Mode=OneWay}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <Slider x:Name="IspContrastSlider" Minimum="-50" Maximum="50" StepFrequency="1" Value="{x:Bind TuningViewModel.IspContrast, Mode=TwoWay}" ValueChanged="IspContrastSlider_ValueChanged" />
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{x:Bind FormatParam('Saturation', TuningViewModel.IspSaturation), Mode=OneWay}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <Slider x:Name="IspSaturationSlider" Minimum="-50" Maximum="50" StepFrequency="1" Value="{x:Bind TuningViewModel.IspSaturation, Mode=TwoWay}" ValueChanged="IspSaturationSlider_ValueChanged" />
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{x:Bind FormatParam('Sharpness', TuningViewModel.IspSharpness), Mode=OneWay}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <Slider x:Name="IspSharpnessSlider" Minimum="-50" Maximum="50" StepFrequency="1" Value="{x:Bind TuningViewModel.IspSharpness, Mode=TwoWay}" ValueChanged="IspSharpnessSlider_ValueChanged" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Day/Night mode card -->
+                                <Border CornerRadius="8" Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" Padding="14">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="Day / Night Mode" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
+
+                                        <TextBlock Text="{x:Bind FormatParam('Current state', TuningViewModel.NightState), Mode=OneWay}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="Mode override" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <ComboBox x:Name="NightModeCombo" HorizontalAlignment="Stretch" ItemsSource="{x:Bind TuningViewModel.NightModeOptions}" SelectedItem="{x:Bind TuningViewModel.NightMode, Mode=TwoWay}" SelectionChanged="NightModeCombo_SelectionChanged" />
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{x:Bind FormatParam('Trigger hw_exp (day-&gt;night)', TuningViewModel.NightTriggerHwExp), Mode=OneWay}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <Slider x:Name="NightTriggerSlider" Minimum="0" Maximum="16384" StepFrequency="1" Value="{x:Bind TuningViewModel.NightTriggerHwExp, Mode=TwoWay}" ValueChanged="NightTriggerSlider_ValueChanged" />
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{x:Bind FormatParam('Day hw_exp (night-&gt;day)', TuningViewModel.NightDayHwExp), Mode=OneWay}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <Slider x:Name="NightDaySlider" Minimum="0" Maximum="16384" StepFrequency="1" Value="{x:Bind TuningViewModel.NightDayHwExp, Mode=TwoWay}" ValueChanged="NightDaySlider_ValueChanged" />
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{x:Bind FormatParam('Confirm samples', TuningViewModel.NightConfirmSamples), Mode=OneWay}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <Slider x:Name="NightConfirmSlider" Minimum="1" Maximum="60" StepFrequency="1" Value="{x:Bind TuningViewModel.NightConfirmSamples, Mode=TwoWay}" ValueChanged="NightConfirmSlider_ValueChanged" />
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{x:Bind FormatParam('Lock (ms)', TuningViewModel.NightLockMs), Mode=OneWay}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" />
+                                            <Slider x:Name="NightLockSlider" Minimum="0" Maximum="120000" StepFrequency="1000" Value="{x:Bind TuningViewModel.NightLockMs, Mode=TwoWay}" ValueChanged="NightLockSlider_ValueChanged" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Encoder card (read-only in v1) -->
+                                <Border CornerRadius="8" Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1" Padding="14">
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Encoder (read-only, v1)" FontSize="14" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}" />
+                                        <TextBlock Text="{x:Bind FormatParam('minqp', TuningViewModel.VencMinQp), Mode=OneWay}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
+                                        <TextBlock Text="{x:Bind FormatParam('maxqp', TuningViewModel.VencMaxQp), Mode=OneWay}" FontSize="12" Foreground="{StaticResource TextMutedBrush}" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- Live preview + debug log -->
+                        <Grid Grid.Column="1" RowDefinitions="2*,8,1*">
+                            <Border Grid.Row="0" CornerRadius="8" Background="Black" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                                <lvc:VideoView x:Name="PreviewVideoView" Initialized="PreviewVideoView_Initialized" />
+                            </Border>
+
+                            <!-- Debug log reuses the same TerminalView control as the Terminal tab
+                                 (scrollback pruning, timestamps, temp-file logging, special-line
+                                 styling) instead of a bare list, fed from CameraControlService's
+                                 tee'd stdout stream via CameraTuningViewModel's LogLineReceived /
+                                 SpecialLineReceived events. See MainWindow.xaml.cs. -->
+                            <controls:TerminalView x:Name="TuningLogTerminal" Grid.Row="2" />
+                        </Grid>
+                    </Grid>
+                </TabViewItem>
+            </TabView>
+        </Grid>
+
+        <!-- Overlay Dialog Components -->
+        <controls:UploadDialog x:Name="UploadOverlayDialog" Grid.RowSpan="2" Visibility="Collapsed" />
+        <controls:DownloadDialog x:Name="DownloadOverlayDialog" Grid.RowSpan="2" Visibility="Collapsed" />
+    </Grid>
+</Window>
